@@ -1,6 +1,26 @@
 use rusqlite::{Connection, Result};
 
 pub fn run(conn: &Connection) -> Result<()> {
+    let version: i32 = conn
+        .query_row(
+            "SELECT COALESCE(MAX(version), 0) FROM schema_version",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap_or(0);
+
+    if version < 1 {
+        run_v1(conn)?;
+    }
+    if version < 2 {
+        run_v2(conn)?;
+    }
+
+    log::info!("Database migrations applied (current version: 2)");
+    Ok(())
+}
+
+fn run_v1(conn: &Connection) -> Result<()> {
     conn.execute_batch(
         "
         CREATE TABLE IF NOT EXISTS schema_version (
@@ -65,9 +85,36 @@ pub fn run(conn: &Connection) -> Result<()> {
             FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         );
 
-        INSERT OR IGNORE INTO schema_version (version) VALUES (1);
+        INSERT INTO schema_version (version) VALUES (1);
         ",
     )?;
-    log::info!("Database migrations applied successfully");
+    log::info!("Applied migration v1");
+    Ok(())
+}
+
+fn run_v2(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        ALTER TABLE projects ADD COLUMN keywords TEXT;
+        ALTER TABLE projects ADD COLUMN notes TEXT NOT NULL DEFAULT '';
+        ALTER TABLE projects ADD COLUMN favorite INTEGER NOT NULL DEFAULT 0;
+
+        CREATE TABLE IF NOT EXISTS project_tags (
+            id TEXT PRIMARY KEY,
+            project_id TEXT NOT NULL,
+            tag TEXT NOT NULL COLLATE NOCASE,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+            UNIQUE(project_id, tag)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_project_tags_project ON project_tags(project_id);
+        CREATE INDEX IF NOT EXISTS idx_project_tags_tag ON project_tags(tag);
+        CREATE INDEX IF NOT EXISTS idx_projects_favorite ON projects(favorite);
+        CREATE INDEX IF NOT EXISTS idx_projects_bpm ON projects(bpm);
+
+        INSERT INTO schema_version (version) VALUES (2);
+        ",
+    )?;
+    log::info!("Applied migration v2 (keywords, notes, favorite, normalized tags)");
     Ok(())
 }

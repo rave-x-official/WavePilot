@@ -7,6 +7,9 @@ export interface Project {
   musical_key: string | null;
   root_note: string | null;
   tags: string | null;
+  keywords: string | null;
+  notes: string | null;
+  favorite: boolean;
   daw_type: string | null;
   last_opened: string | null;
   created_at: string;
@@ -19,6 +22,8 @@ export interface ImportProjectRequest {
   artist?: string;
   daw_type?: string;
   tags?: string[];
+  keywords?: string;
+  notes?: string;
 }
 
 export interface UpdateProjectRequest {
@@ -29,18 +34,29 @@ export interface UpdateProjectRequest {
   musical_key?: string;
   root_note?: string;
   tags?: string[];
+  keywords?: string;
+  notes?: string;
+  favorite?: boolean;
   daw_type?: string;
 }
 
-export interface ProjectSearchQuery {
-  query?: string;
+export type SortField = "Name" | "DateAdded" | "LastOpened" | "Bpm" | "Artist";
+export type SortOrder = "Asc" | "Desc";
+export type ViewMode = "Grid" | "List";
+
+export interface ListProjectsQuery {
+  search?: string;
   artist?: string;
   bpm_min?: number;
   bpm_max?: number;
   musical_key?: string;
   root_note?: string;
   tags?: string[];
-  daw_type?: string;
+  keywords?: string;
+  favorite_only?: boolean;
+  sort_by?: SortField;
+  sort_order?: SortOrder;
+  view?: ViewMode;
 }
 
 export interface Settings {
@@ -49,14 +65,6 @@ export interface Settings {
   projects_directory: string | null;
   analysis_enabled: boolean;
   autosave_interval_seconds: number;
-}
-
-export interface Lyric {
-  id: string;
-  project_id: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export type NavPage =

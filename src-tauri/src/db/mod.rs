@@ -20,6 +20,16 @@ impl Database {
         Ok(db)
     }
 
+    pub fn new_in_memory() -> Result<Self> {
+        let conn = Connection::open_in_memory()?;
+        conn.execute_batch("PRAGMA foreign_keys=ON;")?;
+        let db = Database {
+            conn: Mutex::new(conn),
+        };
+        db.run_migrations()?;
+        Ok(db)
+    }
+
     fn run_migrations(&self) -> Result<()> {
         let conn = self.conn.lock().unwrap();
         migrations::run(&conn)

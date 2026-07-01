@@ -3,7 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Input } from "../components/ui/Input";
 import { Card } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
-import type { Project, ProjectSearchQuery } from "../types";
+import type { Project, ListProjectsQuery } from "../types";
 import { formatDate, formatBpm } from "../lib/utils";
 
 export function Search() {
@@ -14,14 +14,14 @@ export function Search() {
   const [searched, setSearched] = useState(false);
 
   const handleSearch = useCallback(async () => {
-    const searchQuery: ProjectSearchQuery = {
-      query: query || undefined,
+    const searchQuery: ListProjectsQuery = {
+      search: query || undefined,
       artist: artist || undefined,
       musical_key: musicalKey || undefined,
     };
 
     try {
-      const result = await invoke<Project[]>("search_projects", {
+      const result = await invoke<Project[]>("list_projects", {
         query: searchQuery,
       });
       setResults(result);

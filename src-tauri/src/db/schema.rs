@@ -10,6 +10,9 @@ pub struct Project {
     pub musical_key: Option<String>,
     pub root_note: Option<String>,
     pub tags: Option<String>,
+    pub keywords: Option<String>,
+    pub notes: Option<String>,
+    pub favorite: bool,
     pub daw_type: Option<String>,
     pub last_opened: Option<String>,
     pub created_at: String,
@@ -57,4 +60,11 @@ pub struct Setting {
     pub key: String,
     pub value: String,
     pub updated_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ProjectTag {
+    pub id: String,
+    pub project_id: String,
+    pub tag: String,
 }
