@@ -4226,6 +4226,7 @@ dependencies = [
  "tauri-plugin-fs",
  "tauri-plugin-shell",
  "uuid",
+ "walkdir",
 ]
 
 [[package]]

@@ -67,10 +67,86 @@ export interface Settings {
   autosave_interval_seconds: number;
 }
 
+// --- Backup Cleaner ---
+
+export interface BackupDirectory {
+  id: string;
+  path: string;
+  label: string | null;
+  recursive: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AddBackupDirectoryRequest {
+  path: string;
+  label?: string;
+  recursive?: boolean;
+}
+
+export interface BackupFileEntry {
+  path: string;
+  name: string;
+  size_bytes: number;
+  modified: string;
+  parent_project: string | null;
+}
+
+export interface BackupScanResult {
+  directory_id: string;
+  files: BackupFileEntry[];
+  total_files: number;
+  total_size_bytes: number;
+  skipped_count: number;
+  skipped_log: string[];
+}
+
+export interface CleanupPreview {
+  directory_id: string;
+  files_to_delete: BackupFileEntry[];
+  total_files: number;
+  total_size_bytes: number;
+  kept_files: number;
+}
+
+export interface ExecuteCleanupRequest {
+  directory_id: string;
+  file_paths: string[];
+}
+
+export interface CleanupResult {
+  files_deleted: number;
+  files_failed: number;
+  space_freed_bytes: number;
+  errors: string[];
+}
+
+export interface BackupHistoryEntry {
+  id: string;
+  directory_id: string;
+  directory_path: string;
+  scanned_at: string;
+  total_files: number;
+  files_deleted: number;
+  space_freed_bytes: number;
+  status: string;
+  error: string | null;
+}
+
+export interface BackupSettings {
+  backups_to_keep: number;
+  min_file_age_days: number;
+  recursive_scan: boolean;
+  confirm_before_delete: boolean;
+}
+
+// --- Navigation ---
+
 export type NavPage =
   | "projects"
   | "search"
   | "analysis"
   | "lyrics"
   | "releases"
+  | "backup"
   | "settings";

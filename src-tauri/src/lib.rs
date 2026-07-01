@@ -2,6 +2,7 @@ mod commands;
 mod db;
 mod models;
 mod services;
+mod utils;
 
 use db::Database;
 use std::path::PathBuf;
@@ -42,6 +43,14 @@ pub fn run() {
             commands::projects::delete_project,
             commands::projects::check_project_exists,
             commands::projects::get_project_tags,
+            commands::backup::add_backup_directory,
+            commands::backup::list_backup_directories,
+            commands::backup::remove_backup_directory,
+            commands::backup::scan_backup_directory,
+            commands::backup::preview_backup_cleanup,
+            commands::backup::execute_backup_cleanup,
+            commands::backup::get_backup_cleanup_history,
+            commands::backup::get_backup_settings,
             commands::settings::get_settings,
             commands::settings::update_setting,
             commands::settings::reset_settings,

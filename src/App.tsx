@@ -5,6 +5,7 @@ import { Search } from "./pages/Search";
 import { Analysis } from "./pages/Analysis";
 import { Lyrics } from "./pages/Lyrics";
 import { Releases } from "./pages/Releases";
+import { BackupCleaner } from "./pages/BackupCleaner";
 import { SettingsPage } from "./pages/SettingsPage";
 import type { NavPage } from "./types";
 
@@ -23,6 +24,8 @@ function App() {
         return <Lyrics />;
       case "releases":
         return <Releases />;
+      case "backup":
+        return <BackupCleaner />;
       case "settings":
         return <SettingsPage />;
     }

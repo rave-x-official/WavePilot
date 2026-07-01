@@ -15,8 +15,11 @@ pub fn run(conn: &Connection) -> Result<()> {
     if version < 2 {
         run_v2(conn)?;
     }
+    if version < 3 {
+        run_v3(conn)?;
+    }
 
-    log::info!("Database migrations applied (current version: 2)");
+    log::info!("Database migrations applied (current version: 3)");
     Ok(())
 }
 
@@ -116,5 +119,47 @@ fn run_v2(conn: &Connection) -> Result<()> {
         ",
     )?;
     log::info!("Applied migration v2 (keywords, notes, favorite, normalized tags)");
+    Ok(())
+}
+
+fn run_v3(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS backup_directories (
+            id TEXT PRIMARY KEY,
+            path TEXT NOT NULL UNIQUE,
+            label TEXT,
+            recursive INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS backup_excluded_paths (
+            id TEXT PRIMARY KEY,
+            directory_id TEXT NOT NULL,
+            pattern TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (directory_id) REFERENCES backup_directories(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS backup_scan_history (
+            id TEXT PRIMARY KEY,
+            directory_id TEXT NOT NULL,
+            scanned_at TEXT NOT NULL,
+            total_files INTEGER NOT NULL DEFAULT 0,
+            files_deleted INTEGER NOT NULL DEFAULT 0,
+            space_freed_bytes INTEGER NOT NULL DEFAULT 0,
+            status TEXT NOT NULL DEFAULT 'completed',
+            error TEXT,
+            FOREIGN KEY (directory_id) REFERENCES backup_directories(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_backup_history_date ON backup_scan_history(scanned_at);
+        CREATE INDEX IF NOT EXISTS idx_backup_excluded_dir ON backup_excluded_paths(directory_id);
+
+        INSERT INTO schema_version (version) VALUES (3);
+        ",
+    )?;
+    log::info!("Applied migration v3 (backup cleaner tables)");
     Ok(())
 }
