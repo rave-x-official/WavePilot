@@ -140,6 +140,40 @@ export interface BackupSettings {
   confirm_before_delete: boolean;
 }
 
+// --- Analysis ---
+
+export interface AnalyzeAudioRequest {
+  project_id: string;
+  file_path: string;
+}
+
+export interface AudioInfo {
+  duration_secs: number;
+  sample_rate: number;
+  bit_depth: number;
+  channels: number;
+  file_size: number;
+}
+
+export interface LoudnessResult {
+  integrated_lufs: number;
+  short_term_lufs: number;
+  momentary_lufs: number;
+  peak_db: number;
+  rms_db: number;
+}
+
+export interface AnalysisResult {
+  id: string;
+  project_id: string;
+  file_path: string;
+  file_hash: string;
+  audio_info: AudioInfo;
+  loudness: LoudnessResult | null;
+  analyzed_at: string;
+  error: string | null;
+}
+
 // --- Navigation ---
 
 export type NavPage =

@@ -1,3 +1,4 @@
+pub mod analysis;
 pub mod backup;
 pub mod project;
 pub mod settings;

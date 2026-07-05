@@ -35,6 +35,8 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            commands::analysis::analyze_audio,
+            commands::analysis::get_analysis_history,
             commands::projects::import_project,
             commands::projects::list_projects,
             commands::projects::get_project,
