@@ -55,7 +55,7 @@ Early development. v1 focuses on **Project Manager** and **Backup Cleaner** with
 ### Install & Run
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/WavePilot
+git clone https://github.com/rave-x-official/WavePilot
 cd WavePilot
 npm install
 
