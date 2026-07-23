@@ -27,6 +27,7 @@ pub struct BackupFileEntry {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[allow(dead_code)]
 pub struct BackupScanProgress {
     pub current_file: String,
     pub files_found: u64,
@@ -34,6 +35,7 @@ pub struct BackupScanProgress {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[allow(dead_code)]
 pub enum ScanPhase {
     Scanning,
     Analyzing,

@@ -45,7 +45,13 @@ function peakColor(db: number | null | undefined): string {
   return "text-green-400";
 }
 
-export function Analysis() {
+export function Analysis({
+  selectedProjectId,
+  onClearSelected,
+}: {
+  selectedProjectId?: string | null;
+  onClearSelected?: () => void;
+}) {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +65,7 @@ export function Analysis() {
     try {
       const res = await invoke<AnalysisResult>("analyze_audio", {
         request: {
-          project_id: "direct",
+          project_id: selectedProjectId || "direct",
           file_path: filePath,
         },
       });
@@ -233,7 +239,22 @@ export function Analysis() {
   return (
     <div className="page-container">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="page-header mb-0">Analysis</h1>
+        <div className="flex items-center gap-3">
+          {selectedProjectId && onClearSelected && (
+            <button
+              onClick={onClearSelected}
+              className="text-text-muted hover:text-text-primary transition-colors"
+              title="Back"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+          <h1 className="page-header mb-0">
+            Analysis{selectedProjectId ? " — Project" : ""}
+          </h1>
+        </div>
         <Button onClick={handleFileSelect} disabled={loading}>
           {loading ? "Analyzing…" : "Analyze Audio"}
         </Button>

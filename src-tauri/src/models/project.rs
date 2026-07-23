@@ -22,6 +22,7 @@ pub struct UpdateProjectRequest {
     pub tags: Option<Vec<String>>,
     pub keywords: Option<String>,
     pub notes: Option<String>,
+    pub description: Option<String>,
     pub favorite: Option<bool>,
     pub daw_type: Option<String>,
 }

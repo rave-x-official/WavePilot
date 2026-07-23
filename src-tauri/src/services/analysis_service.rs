@@ -38,17 +38,16 @@ impl Biquad {
         let sin_w0 = w0.sin();
         let alpha = sin_w0 / (2.0 * q);
         let a = 10.0_f64.powf(gain_db / 40.0);
-        let beta = (a + 1.0_f64.sqrt()) * (a - 1.0_f64.sqrt()).sqrt(); // sqrt((a^2 - 1) / a) ?
-        // More robust low-shelf formula:
-        let beta = (4.0 * a).sqrt(); // simplified for +4 dB shelf
-        let a0 = (a + 1.0) + (a - 1.0) * cos_w0 + beta * sin_w0;
+        let sqrt_a = a.sqrt();
+        let two_sqrt_a_alpha = 2.0 * sqrt_a * alpha;
+        let a0 = (a + 1.0) + (a - 1.0) * cos_w0 + two_sqrt_a_alpha;
 
         Biquad {
-            b0: (a * ((a + 1.0) - (a - 1.0) * cos_w0 + beta * sin_w0)) / a0,
+            b0: (a * ((a + 1.0) - (a - 1.0) * cos_w0 + two_sqrt_a_alpha)) / a0,
             b1: (2.0 * a * ((a - 1.0) - (a + 1.0) * cos_w0)) / a0,
-            b2: (a * ((a + 1.0) - (a - 1.0) * cos_w0 - beta * sin_w0)) / a0,
+            b2: (a * ((a + 1.0) - (a - 1.0) * cos_w0 - two_sqrt_a_alpha)) / a0,
             a1: (-2.0 * ((a - 1.0) + (a + 1.0) * cos_w0)) / a0,
-            a2: ((a + 1.0) + (a - 1.0) * cos_w0 - beta * sin_w0) / a0,
+            a2: ((a + 1.0) + (a - 1.0) * cos_w0 - two_sqrt_a_alpha) / a0,
             x1: 0.0, x2: 0.0, y1: 0.0, y2: 0.0,
         }
     }
@@ -69,7 +68,6 @@ impl Biquad {
 fn read_wav(path: &Path) -> Result<Vec<Vec<f64>>, String> {
     let mut reader = hound::WavReader::open(path).map_err(|e| format!("Failed to open WAV: {}", e))?;
     let spec = reader.spec();
-    let sample_rate = spec.sample_rate;
     let channels = spec.channels as usize;
     let bits_per_sample = spec.bits_per_sample;
 
@@ -483,8 +481,6 @@ pub fn get_analysis_history(db: &Database) -> Result<Vec<AnalysisResult>, String
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::db::Database;
-    use std::io::Write;
 
     fn create_test_wav(
         path: &std::path::Path,
@@ -628,7 +624,7 @@ mod tests {
         let mut hp = Biquad::high_pass(44100.0, 38.0, 0.5);
         // DC should be attenuated
         let out = hp.process(1.0);
-        let out2 = hp.process(1.0);
+        let _out2 = hp.process(1.0);
         let out3 = hp.process(1.0);
         // High-pass filters DC, so after a few samples, output should decrease
         assert!(out3.abs() < 0.5 || out3 < out);

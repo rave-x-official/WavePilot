@@ -9,6 +9,7 @@ export interface Project {
   tags: string | null;
   keywords: string | null;
   notes: string | null;
+  description: string;
   favorite: boolean;
   daw_type: string | null;
   last_opened: string | null;
@@ -36,6 +37,7 @@ export interface UpdateProjectRequest {
   tags?: string[];
   keywords?: string;
   notes?: string;
+  description?: string;
   favorite?: boolean;
   daw_type?: string;
 }
@@ -172,6 +174,71 @@ export interface AnalysisResult {
   loudness: LoudnessResult | null;
   analyzed_at: string;
   error: string | null;
+}
+
+// --- Lyrics ---
+
+export interface Lyric {
+  id: string;
+  project_id: string;
+  title: string | null;
+  content: string;
+  section: string | null;
+  language: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateLyricRequest {
+  project_id: string;
+  title?: string;
+  content: string;
+  section?: string;
+  language?: string;
+}
+
+export interface UpdateLyricRequest {
+  id: string;
+  title?: string;
+  content?: string;
+  section?: string;
+  language?: string;
+}
+
+// --- Release Checklist ---
+
+export interface ChecklistItem {
+  id: string;
+  label: string;
+  done: boolean;
+}
+
+export interface ReleaseChecklist {
+  id: string;
+  project_id: string;
+  items: ChecklistItem[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateChecklistRequest {
+  project_id: string;
+}
+
+export interface UpdateChecklistItemRequest {
+  checklist_id: string;
+  item_id: string;
+  done: boolean;
+}
+
+export interface AddChecklistItemRequest {
+  checklist_id: string;
+  label: string;
+}
+
+export interface RemoveChecklistItemRequest {
+  checklist_id: string;
+  item_id: string;
 }
 
 // --- Navigation ---

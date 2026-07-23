@@ -12,6 +12,7 @@ pub struct Project {
     pub tags: Option<String>,
     pub keywords: Option<String>,
     pub notes: Option<String>,
+    pub description: String,
     pub favorite: bool,
     pub daw_type: Option<String>,
     pub last_opened: Option<String>,
@@ -23,12 +24,16 @@ pub struct Project {
 pub struct Lyric {
     pub id: String,
     pub project_id: String,
+    pub title: Option<String>,
     pub content: String,
+    pub section: Option<String>,
+    pub language: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[allow(dead_code)]
 pub struct BackupRule {
     pub id: String,
     pub project_id: Option<String>,
@@ -47,6 +52,7 @@ pub struct ReleaseChecklist {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[allow(dead_code)]
 pub struct AnalysisCache {
     pub id: String,
     pub project_id: String,
@@ -56,6 +62,7 @@ pub struct AnalysisCache {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[allow(dead_code)]
 pub struct Setting {
     pub key: String,
     pub value: String,
@@ -63,6 +70,7 @@ pub struct Setting {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[allow(dead_code)]
 pub struct ProjectTag {
     pub id: String,
     pub project_id: String,

@@ -18,8 +18,11 @@ pub fn run(conn: &Connection) -> Result<()> {
     if version < 3 {
         run_v3(conn)?;
     }
+    if version < 4 {
+        run_v4(conn)?;
+    }
 
-    log::info!("Database migrations applied (current version: 3)");
+    log::info!("Database migrations applied (current version: 4)");
     Ok(())
 }
 
@@ -161,5 +164,25 @@ fn run_v3(conn: &Connection) -> Result<()> {
         ",
     )?;
     log::info!("Applied migration v3 (backup cleaner tables)");
+    Ok(())
+}
+
+fn run_v4(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        ALTER TABLE lyrics ADD COLUMN title TEXT;
+        ALTER TABLE lyrics ADD COLUMN section TEXT;
+        ALTER TABLE lyrics ADD COLUMN language TEXT;
+
+        ALTER TABLE projects ADD COLUMN description TEXT NOT NULL DEFAULT '';
+
+        CREATE INDEX IF NOT EXISTS idx_lyrics_project ON lyrics(project_id);
+        CREATE INDEX IF NOT EXISTS idx_checklists_project ON release_checklists(project_id);
+        CREATE INDEX IF NOT EXISTS idx_analysis_project ON analysis_cache(project_id);
+
+        INSERT INTO schema_version (version) VALUES (4);
+        ",
+    )?;
+    log::info!("Applied migration v4 (lyrics columns, project description, indexes)");
     Ok(())
 }

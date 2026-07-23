@@ -5,7 +5,7 @@ use crate::models::project::{
 };
 use crate::utils::{collect_ok, new_id, now_timestamp, resolve_canonical_path};
 
-const PROJECT_COLUMNS: &str = "id, name, path, artist, bpm, musical_key, root_note, tags, keywords, notes, favorite, daw_type, last_opened, created_at, updated_at";
+const PROJECT_COLUMNS: &str = "id, name, path, artist, bpm, musical_key, root_note, tags, keywords, notes, description, favorite, daw_type, last_opened, created_at, updated_at";
 
 fn row_to_project(row: &rusqlite::Row) -> rusqlite::Result<Project> {
     Ok(Project {
@@ -19,11 +19,12 @@ fn row_to_project(row: &rusqlite::Row) -> rusqlite::Result<Project> {
         tags: row.get(7)?,
         keywords: row.get(8)?,
         notes: row.get(9)?,
-        favorite: row.get::<_, i32>(10)? != 0,
-        daw_type: row.get(11)?,
-        last_opened: row.get(12)?,
-        created_at: row.get(13)?,
-        updated_at: row.get(14)?,
+        description: row.get(10)?,
+        favorite: row.get::<_, i32>(11)? != 0,
+        daw_type: row.get(12)?,
+        last_opened: row.get(13)?,
+        created_at: row.get(14)?,
+        updated_at: row.get(15)?,
     })
 }
 
@@ -104,6 +105,7 @@ pub fn import_project(db: &Database, req: ImportProjectRequest) -> Result<Projec
         tags: tags_json,
         keywords: req.keywords,
         notes: req.notes,
+        description: String::new(),
         favorite: false,
         daw_type: req.daw_type,
         last_opened: Some(now.clone()),
@@ -218,6 +220,7 @@ fn apply_updates(
     if req.root_note.is_some() { set_parts.push("root_note = ?"); }
     if req.keywords.is_some() { set_parts.push("keywords = ?"); }
     if req.notes.is_some() { set_parts.push("notes = ?"); }
+    if req.description.is_some() { set_parts.push("description = ?"); }
     if req.favorite.is_some() { set_parts.push("favorite = ?"); }
     if req.daw_type.is_some() { set_parts.push("daw_type = ?"); }
 
@@ -233,6 +236,7 @@ fn apply_updates(
     if let Some(ref v) = req.root_note { values.push(Box::new(v.clone())); }
     if let Some(ref v) = req.keywords { values.push(Box::new(v.clone())); }
     if let Some(ref v) = req.notes { values.push(Box::new(v.clone())); }
+    if let Some(ref v) = req.description { values.push(Box::new(v.clone())); }
     if let Some(v) = req.favorite { values.push(Box::new(v as i32)); }
     if let Some(ref v) = req.daw_type { values.push(Box::new(v.clone())); }
 
@@ -493,6 +497,7 @@ mod tests {
                 tags: None,
                 keywords: None,
                 notes: None,
+                description: None,
                 favorite: None,
                 daw_type: None,
             },
@@ -568,6 +573,7 @@ mod tests {
                 tags: None,
                 keywords: None,
                 notes: None,
+                description: None,
                 favorite: None,
                 daw_type: None,
             },
@@ -594,6 +600,7 @@ mod tests {
                 tags: None,
                 keywords: None,
                 notes: None,
+                description: None,
                 favorite: None,
                 daw_type: None,
             },

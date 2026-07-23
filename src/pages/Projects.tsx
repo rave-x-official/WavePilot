@@ -17,7 +17,11 @@ import { formatDate, formatBpm } from "../lib/utils";
 
 type PageState = "loading" | "loaded" | "error";
 
-export function Projects() {
+interface ProjectsProps {
+  onNavigateToAnalysis?: (projectId: string) => void;
+}
+
+export function Projects({ onNavigateToAnalysis }: ProjectsProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [state, setState] = useState<PageState>("loading");
   const [error, setError] = useState<string | null>(null);
@@ -244,6 +248,18 @@ export function Projects() {
             <p className="text-xs text-text-muted">
               Added {formatDate(project.created_at)}
             </p>
+
+            <div className="flex items-center gap-2 mt-2">
+              {onNavigateToAnalysis && (
+                <button
+                  onClick={() => onNavigateToAnalysis(project.id)}
+                  className="text-xs text-accent hover:text-accent/80 transition-colors"
+                  title="Analyze audio"
+                >
+                  Analyze
+                </button>
+              )}
+            </div>
 
             <button
               onClick={() => handleDelete(project.id, project.name)}

@@ -11,15 +11,26 @@ import type { NavPage } from "./types";
 
 function App() {
   const [activePage, setActivePage] = useState<NavPage>("projects");
+  const [analysisProjectId, setAnalysisProjectId] = useState<string | null>(null);
+
+  function navigateToAnalysis(projectId: string) {
+    setAnalysisProjectId(projectId);
+    setActivePage("analysis");
+  }
 
   function renderPage() {
     switch (activePage) {
       case "projects":
-        return <Projects />;
+        return <Projects onNavigateToAnalysis={navigateToAnalysis} />;
       case "search":
         return <Search />;
       case "analysis":
-        return <Analysis />;
+        return (
+          <Analysis
+            selectedProjectId={analysisProjectId}
+            onClearSelected={() => setAnalysisProjectId(null)}
+          />
+        );
       case "lyrics":
         return <Lyrics />;
       case "releases":

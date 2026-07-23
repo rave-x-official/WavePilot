@@ -378,8 +378,9 @@ pub fn get_cleanup_history(db: &Database) -> Result<Vec<BackupHistoryEntry>, Str
     Ok(entries)
 }
 
-// --- Excluded paths ---
+// --- Excluded paths (reserved for future UI) ---
 
+#[allow(dead_code)]
 pub fn add_excluded_path(db: &Database, directory_id: &str, pattern: &str) -> Result<(), String> {
     let conn = db.lock()?;
     conn.execute(
@@ -390,6 +391,7 @@ pub fn add_excluded_path(db: &Database, directory_id: &str, pattern: &str) -> Re
     Ok(())
 }
 
+#[allow(dead_code)]
 pub fn list_excluded_paths(db: &Database, directory_id: &str) -> Result<Vec<String>, String> {
     let conn = db.lock()?;
     let mut stmt = conn
@@ -402,6 +404,7 @@ pub fn list_excluded_paths(db: &Database, directory_id: &str) -> Result<Vec<Stri
     Ok(patterns)
 }
 
+#[allow(dead_code)]
 pub fn remove_excluded_path(db: &Database, directory_id: &str, pattern: &str) -> Result<(), String> {
     let conn = db.lock()?;
     conn.execute(

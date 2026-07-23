@@ -20,6 +20,7 @@ impl Database {
         Ok(db)
     }
 
+    #[cfg(test)]
     pub fn new_in_memory() -> Result<Self> {
         let conn = Connection::open_in_memory()?;
         conn.execute_batch("PRAGMA foreign_keys=ON;")?;

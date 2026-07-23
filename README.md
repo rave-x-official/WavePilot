@@ -1,140 +1,97 @@
 # WavePilot
 
-An open-source, offline-first music production toolkit for organizing, analyzing, and managing your projects. No telemetry, no user accounts, no cloud dependencies.
+A desktop toolkit for music producers who want to keep their projects organized without relying on cloud services or subscriptions. Everything runs locally, your data stays on your machine.
 
-## Status
+Built with Tauri 2 (Rust + React), available for Windows and Linux.
 
-Early development. v1 focuses on **Project Manager** and **Backup Cleaner** with an **Audio Analysis** module for loudness measurement.
-
-## Features
+## What's in the box
 
 ### Project Manager
-- Import and organize music projects from any folder
-- Grid or list view with sort (name, date, BPM, artist)
-- Search by name, artist, keywords, tags
-- Star favorites and filter by favorites
-- Tag support with autocomplete
+Import any folder as a project. Give it a name, artist, BPM, key, tags — whatever helps you find it later. Grid or list view, sort by anything, filter by favorites. Duplicate detection so you don't import the same folder twice.
 
 ### Backup Cleaner
-- Register directories to scan for backup files
-- Detects `.bak`, `.backup`, `.old`, `.rpp-bak` and name-marked backups
-- Groups backups by parent project, keeps N latest
-- Preview what will be deleted before committing
-- Scan history log
+Point it at your backup directories and it'll find `.bak`, `.backup`, `.old`, `.rpp-bak` files and other clutter that accumulates over time. Groups backups by parent project, lets you preview what gets deleted before you commit, and keeps a history of cleanups.
 
 ### Audio Analysis
-- Analyze WAV files (16/24/32-bit, mono to 5.1 surround)
-- Integrated LUFS, Short-Term LUFS, Momentary LUFS per ITU-R BS.1770-4
-- Peak dB and RMS dB
-- Results cached to avoid re-scanning unchanged files
-- Dashboard UI with color-coded loudness ranges
+Drop in a WAV file (16/24/32-bit, mono through surround) and get a loudness reading: Integrated, Short-Term, and Momentary LUFS per ITU-R BS.1770-4, plus peak and RMS levels. Results are cached by file hash so you don't re-analyze unchanged files. Color-coded dashboard makes it easy to see where you're at.
 
-### Planned
-- True Peak, Dynamic Range, Crest Factor, Stereo Width, Phase Correlation
-- BPM detection, musical key detection
-- Lyrics workspace
-- Release checklist
+### Lyrics Workspace
+Write and organize lyrics per project. Split by sections (verse, chorus, bridge, etc.), tag by language, search across all your lyrics. Split-panel editor with the list on the left and a clean writing area on the right.
 
-## Tech Stack
+### Release Checklist
+Track what's left before a release. Each project gets its own checklist with sensible defaults (mix done, master exported, cover ready, uploaded, etc.). Add custom items, check things off, see your progress at a glance across all projects.
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 19, TypeScript, Vite, TailwindCSS |
-| Backend | Rust, Tauri 2 |
-| Database | SQLite via rusqlite (WAL mode) |
-| Audio | hound (WAV), custom ITU-R BS.1770-4 LUFS |
+### Advanced Search
+Filter by name, artist, musical key, BPM range, tags, keywords, favorites — or any combination. Sort results by date, name, BPM, or artist. Tag chips are auto-discovered from your library so you can click to filter.
 
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
-- Rust 1.96+ — `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
-- Node.js 26+ — https://nodejs.org
-- Tauri system deps (Linux): `webkit2gtk-4.1`, `libgtk-3-dev`, `libayatana-appindicator3-dev`
+- **Rust** 1.70+ — [rustup.rs](https://rustup.rs)
+- **Node.js** 18+ — [nodejs.org](https://nodejs.org)
+- **Linux only**: `webkit2gtk-4.1`, `libgtk-3-dev`, `libayatana-appindicator3-dev`
 
-### Install & Run
+### Running in dev mode
 
 ```bash
 git clone https://github.com/rave-x-official/WavePilot
 cd WavePilot
 npm install
-
-# Terminal 1 — frontend dev server
-npm run dev
-
-# Terminal 2 — native desktop window
-cargo run
+npm run dev &              # frontend dev server in background
+WAYLAND_DISPLAY= cargo run  # native window (prefix needed on Wayland)
 ```
 
-On Linux Wayland, prefix with `WAYLAND_DISPLAY=` if you get a SIGBUS crash:
+If you're on X11, just `cargo run` works fine.
 
-```bash
-WAYLAND_DISPLAY= cargo run
-```
-
-### Run Tests
+### Running tests
 
 ```bash
 cd src-tauri && cargo test
 ```
 
-42 tests covering project CRUD, backup scanning/cleanup, LUFS analysis, filters, caching.
+55 tests covering project CRUD, backup scanning/cleanup, audio analysis, lyrics, release checklists, and filters.
 
-## Project Structure
-
-```
-src/                          # Frontend (React/TypeScript)
-├── pages/                    # Projects, BackupCleaner, Analysis, etc.
-├── components/ui/            # Reusable: Button, Card, Input, Badge, Modal, Sidebar
-├── hooks/                    # useSettings
-└── types/                    # TypeScript interfaces
-
-src-tauri/src/                # Backend (Rust)
-├── commands/                 # Tauri command handlers
-│   ├── projects.rs
-│   ├── backup.rs
-│   ├── analysis.rs
-│   └── settings.rs
-├── services/                 # Business logic
-│   ├── project_service.rs    # CRUD, search, sort, favorites
-│   ├── backup_service.rs     # Scan, preview, cleanup, history
-│   ├── analysis_service.rs   # LUFS, Peak, RMS, caching
-│   └── settings_service.rs
-├── db/                       # Database
-│   ├── migrations.rs         # v1–v3 schema
-│   ├── schema.rs             # Row structs
-│   └── mod.rs                # Database, lock()
-├── models/                   # Request/response types
-│   ├── project.rs
-│   ├── backup.rs
-│   ├── analysis.rs
-│   └── settings.rs
-└── utils.rs                  # new_id, now_timestamp, resolve_canonical_path, collect_ok
-```
-
-## Building
+## Building for production
 
 ```bash
-# Production build
-cd src-tauri && cargo build --release
-
-# Package (.deb)
+# Linux .deb
 cargo tauri build --bundles deb
 
-# Package (.AppImage) — may need workarounds on bleeding-edge distros
-cargo tauri build --bundles appimage
+# Windows NSIS installer
+cargo tauri build --bundles nsis
+
+# Full release binary
+cd src-tauri && cargo build --release
 ```
 
-The release binary is at `target/release/wavepilot` (~17 MB).
+The release binary is ~17 MB. The .deb package is ~6 MB.
 
-## Architecture Decisions
+## Tech stack
 
-- **Mutex<Connection>** for thread-safe SQLite access — simple, sufficient for single-writer desktop
-- **Normalized tags** via `project_tags` table (UNIQUE per project+tag, COLLATE NOCASE) not JSON blobs
-- **Dynamic SET builder** for project updates — replaces 11 single-field UPDATE functions
-- **collect_ok()** logs row-level SQL errors instead of silently dropping them
-- **file_hash** caching avoids re-analyzing unchanged audio files
+| Layer | What |
+|-------|------|
+| Frontend | React 19, TypeScript, Vite, TailwindCSS |
+| Backend | Rust, Tauri 2 |
+| Database | SQLite (rusqlite, WAL mode) |
+| Audio | hound for WAV reading, custom ITU-R BS.1770-4 implementation |
+
+## Project layout
+
+```
+src/                          Frontend
+├── pages/                    Each feature is its own page
+├── components/ui/            Reusable UI components
+└── types/                    Shared TypeScript interfaces
+
+src-tauri/src/                Backend
+├── commands/                 Tauri command handlers (IPC boundary)
+├── services/                 Business logic + tests
+├── db/                       SQLite migrations + schema
+├── models/                   Request/response types
+└── utils.rs                  Shared helpers
+```
 
 ## License
 
-MIT
+GPL v3 — see [LICENSE](LICENSE)
